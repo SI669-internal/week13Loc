@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { 
+  Accuracy,
   requestForegroundPermissionsAsync,
   watchPositionAsync 
 } from 'expo-location';
@@ -22,7 +22,12 @@ export default function App() {
       unsubscribeFromLocation();
     }
 
-    unsubscribeFromLocation = watchPositionAsync({}, location => {
+    unsubscribeFromLocation = watchPositionAsync({
+      accuracy: Accuracy.Highest,
+      distanceInterval: 1,
+      timeInterval: 1000
+
+    }, location => {
       console.log('received update:', location);
       setLocation(location);
     })
@@ -32,7 +37,6 @@ export default function App() {
     subscribeToLocation();
   }, []);
 
-  console.log(PROVIDER_GOOGLE);
  
   return (
     <View style={styles.container}>
@@ -44,12 +48,11 @@ export default function App() {
           :
             "Waiting..."
         :
-          "Location permission granted."
+          "Location permission not granted."
         }
 
       </Text>
-      <MapView style={styles.map} provider={PROVIDER_GOOGLE}/> 
-    </View>
+     </View>
   );
 }
 
