@@ -8,8 +8,16 @@ import {
 } from 'expo-location';
 
 export default function App() {
-  const [location, setLocation] = useState(null);
+  const initRegion = {
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  }
+
+  const [ location, setLocation ] = useState(null);
   const [ permissionsGranted, setPermissionsGranted ] = useState(false);
+  const [ mapRegion, setMapRegion ] = useState(initRegion);
 
   let unsubscribeFromLocation = null;
 
@@ -25,6 +33,11 @@ export default function App() {
     unsubscribeFromLocation = watchPositionAsync({}, location => {
       console.log('received update:', location);
       setLocation(location);
+      setMapRegion({
+        ...mapRegion,
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+      })
     })
   }
 
@@ -32,8 +45,6 @@ export default function App() {
     subscribeToLocation();
   }, []);
 
-  console.log(PROVIDER_GOOGLE);
- 
   return (
     <View style={styles.container}>
       <Text style={styles.paragraph}>
@@ -48,7 +59,12 @@ export default function App() {
         }
 
       </Text>
-      <MapView style={styles.map} provider={PROVIDER_GOOGLE}/> 
+      <MapView 
+        style={styles.map} 
+        provider={PROVIDER_GOOGLE}
+        region={mapRegion}  
+        showsUserLocation={true}
+      /> 
     </View>
   );
 }
