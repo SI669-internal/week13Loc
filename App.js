@@ -72,6 +72,11 @@ export default function App() {
 
   useEffect(() => {
     subscribeToLocation();
+    return(()=>{
+      if (unsubscribeFromLocation) {
+        unsubscribeFromLocation();
+      }
+    })
   }, []);
 
   return (
