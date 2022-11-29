@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { Text, View, StyleSheet, Button } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { GOOGLE_API_KEY } from './Secrets';
 
 import { 
   requestForegroundPermissionsAsync,
@@ -18,6 +19,7 @@ export default function App() {
   const [ location, setLocation ] = useState(null);
   const [ permissionsGranted, setPermissionsGranted ] = useState(false);
   const [ mapRegion, setMapRegion ] = useState(initRegion);
+  const [ places, setPlaces ] = useState([]);
 
   let unsubscribeFromLocation = null;
 
@@ -31,7 +33,7 @@ export default function App() {
     }
 
     unsubscribeFromLocation = watchPositionAsync({}, location => {
-      console.log('received update:', location);
+      //console.log('received update:', location);
       setLocation(location);
       setMapRegion({
         ...mapRegion,
@@ -40,6 +42,33 @@ export default function App() {
       })
     })
   }
+
+  const searchLocations = async () => {
+    let placesURI = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
+    placesURI += 'location=' + location.coords.latitude;
+    placesURI += '%2C' + location.coords.longitude;
+    placesURI += '&type=restaurant';    
+    //placesURI += '&keyword=indian';    
+    placesURI += '&radius=5000';
+    placesURI += '&key=' + GOOGLE_API_KEY;
+
+    console.log(placesURI);
+    let response = await fetch(placesURI);
+    //console.log(response);
+    let results = await response.json();
+
+    let newPlaces = [];
+    for (let r of results.results) {
+      let newPlace = {};
+      newPlace.latitude = r.geometry.location.lat;
+      newPlace.longitude = r.geometry.location.lng;
+      newPlace.name = r.name;
+      newPlace.id = r.place_id;
+      newPlaces.push(newPlace);
+    }
+    setPlaces(newPlaces);
+  }
+
 
   useEffect(() => {
     subscribeToLocation();
@@ -64,7 +93,21 @@ export default function App() {
         provider={PROVIDER_GOOGLE}
         region={mapRegion}  
         showsUserLocation={true}
-      /> 
+      >
+        {places.map(place => {
+          return (
+            <Marker
+              key={place.id}
+              coordinate={{latitude: place.latitude, longitude: place.longitude}}
+              title={place.name}
+            />
+          )
+        })}
+      </MapView> 
+      <Button
+        title="Search for Restaurants"
+        onPress={searchLocations}
+      />
     </View>
   );
 }
