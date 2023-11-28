@@ -22,7 +22,7 @@ export default function App() {
       unsubscribeFromLocation();
     }
 
-    unsubscribeFromLocation = watchPositionAsync({
+    unsubscribeFromLocation = await watchPositionAsync({
       accuracy: Accuracy.Highest,
       distanceInterval: 1,
       timeInterval: 1000
