@@ -30,7 +30,7 @@ export default function App() {
       unsubscribeFromLocation();
     }
 
-    unsubscribeFromLocation = watchPositionAsync({}, location => {
+    unsubscribeFromLocation =  await watchPositionAsync({}, location => {
       console.log('received update:', location);
       setLocation(location);
       setMapRegion({
