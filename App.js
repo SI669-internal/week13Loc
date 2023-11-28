@@ -32,7 +32,7 @@ export default function App() {
       unsubscribeFromLocation();
     }
 
-    unsubscribeFromLocation = watchPositionAsync({}, location => {
+    unsubscribeFromLocation = await watchPositionAsync({}, location => {
       //console.log('received update:', location);
       setLocation(location);
       setMapRegion({
@@ -54,7 +54,7 @@ export default function App() {
 
     console.log(placesURI);
     let response = await fetch(placesURI);
-    //console.log(response);
+    //console.log('r:', response);
     let results = await response.json();
 
     let newPlaces = [];
@@ -66,6 +66,7 @@ export default function App() {
       newPlace.id = r.place_id;
       newPlaces.push(newPlace);
     }
+    console.log('places:', newPlaces);
     setPlaces(newPlaces);
   }
 
@@ -100,6 +101,7 @@ export default function App() {
         showsUserLocation={true}
       >
         {places.map(place => {
+          console.log('hey');
           return (
             <Marker
               key={place.id}
